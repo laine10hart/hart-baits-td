@@ -1,7 +1,7 @@
 body{
 margin:0;
 font-family:Arial;
-background:#1b2a2a;
+background:#1f2f2f;
 color:white;
 }
 
@@ -12,13 +12,13 @@ height:100vh;
 
 #leftPanel{
 width:200px;
-background:#243434;
+background:#2c3f3f;
 padding:10px;
 }
 
 #rightPanel{
 width:220px;
-background:#243434;
+background:#2c3f3f;
 padding:10px;
 }
 
@@ -27,7 +27,7 @@ flex:1;
 display:flex;
 justify-content:center;
 align-items:center;
-background:#1f3f3f;
+background:#2f5f5f;
 }
 
 canvas{
@@ -38,12 +38,12 @@ button{
 width:100%;
 margin:6px 0;
 padding:8px;
-background:#2f5f5f;
+background:#3f6f6f;
 border:none;
 color:white;
 cursor:pointer;
 }
 
 button:hover{
-background:#3f7f7f;
+background:#4f8f8f;
 }
