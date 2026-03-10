@@ -1,133 +1,94 @@
 const canvas = document.getElementById("game")
 const ctx = canvas.getContext("2d")
 
-let gridSize = 50
-let cols = 18
-let rows = 12
+let grid=40
+let cols=22
+let rows=12
+
+let money=300
+let health=20
+let wave=1
 
 let towers=[]
 let enemies=[]
 let bullets=[]
 
-let money=300
-let wave=1
-let air=0
-
-let playerName=""
 let selectedTower=null
+let waveActive=false
 
-const towerCosts={
-rod:100,
-rapid:150,
-farm:200,
-support:180
+const towerStats={
+rod:{cost:100,range:3,rate:40,damage:10},
+rapid:{cost:150,range:3,rate:15,damage:6},
+farm:{cost:200},
+support:{cost:180}
 }
 
-const tiers=[
-"Bronze",
-"Silver",
-"Gold",
-"Diamond",
-"Mythic"
+const maps={
+river:[
+{x:0,y:5},{x:5,y:5},{x:5,y:9},{x:14,y:9},{x:14,y:3},{x:21,y:3}
+],
+
+swamp:[
+{x:0,y:8},{x:6,y:8},{x:6,y:2},{x:14,y:2},{x:14,y:9},{x:21,y:9}
 ]
-
-let difficultyStats={
-easy:{money:400,scale:0.8},
-medium:{money:300,scale:1},
-hard:{money:200,scale:1.3},
-insane:{money:150,scale:1.7}
 }
 
-let path=[]
-
-function startGame(){
-
-playerName=document.getElementById("playerName").value || "Player"
-
-const diff=document.getElementById("difficulty").value
-
-money=difficultyStats[diff].money
-
-path=generatePath()
-
-document.getElementById("menu").style.display="none"
-document.getElementById("gameUI").style.display="block"
-
-updateUI()
-
-spawnWave()
-
-gameLoop()
-
-}
-
-function generatePath(){
-
-return[
-{x:0,y:5},
-{x:4,y:5},
-{x:4,y:9},
-{x:12,y:9},
-{x:12,y:3},
-{x:17,y:3}
-]
-
-}
-
-function selectTower(type){
-
-selectedTower=type
-
-}
+let path=maps.river
 
 canvas.addEventListener("click",e=>{
 
+if(!selectedTower) return
+
 const rect=canvas.getBoundingClientRect()
 
-const x=Math.floor((e.clientX-rect.left)/gridSize)
-const y=Math.floor((e.clientY-rect.top)/gridSize)
+let x=Math.floor((e.clientX-rect.left)/grid)
+let y=Math.floor((e.clientY-rect.top)/grid)
 
-if(selectedTower){
-
-let cost=towerCosts[selectedTower]
+let cost=towerStats[selectedTower].cost
 
 if(money<cost) return
 
 towers.push({
 x,y,
 type:selectedTower,
-tier:0,
-cool:0
+cool:0,
+tier:0
 })
 
 money-=cost
-selectedTower=null
-
 updateUI()
 
+})
+
+function selectTower(type){
+selectedTower=type
 }
 
-})
+function startNextWave(){
 
-function spawnWave(){
+if(waveActive) return
 
-for(let i=0;i<wave*2;i++){
+waveActive=true
+
+for(let i=0;i<wave*3;i++){
 
 setTimeout(()=>{
-
-enemies.push({
-
-x:path[0].x,
-y:path[0].y,
-hp:50+wave*10,
-speed:0.02+wave*0.002,
-step:0
-
-})
-
+spawnEnemy()
 },i*500)
 
 }
+
+}
+
+function spawnEnemy(){
+
+enemies.push({
+x:path[0].x,
+y:path[0].y,
+hp:40+wave*15,
+speed:0.02+wave*0.002,
+step:0
+})
 
 }
 
@@ -137,7 +98,11 @@ for(let e of enemies){
 
 let target=path[e.step+1]
 
-if(!target) continue
+if(!target){
+health--
+e.dead=true
+continue
+}
 
 let dx=target.x-e.x
 let dy=target.y-e.y
@@ -155,9 +120,9 @@ for(let t of towers){
 
 t.cool--
 
-if(t.cool<=0){
+if(t.cool>0) continue
 
-let range=3+t.tier
+if(!towerStats[t.type].range) continue
 
 for(let e of enemies){
 
@@ -166,22 +131,17 @@ let dy=e.y-t.y
 
 let dist=Math.sqrt(dx*dx+dy*dy)
 
-if(dist<range){
+if(dist<towerStats[t.type].range){
 
 bullets.push({
-
 x:t.x,
 y:t.y,
 target:e,
-dmg:10+5*t.tier
-
+dmg:towerStats[t.type].damage
 })
 
-t.cool=(t.type==="rapid")?10:25
-
+t.cool=towerStats[t.type].rate
 break
-
-}
 
 }
 
@@ -214,15 +174,28 @@ enemies=enemies.filter(e=>{
 
 if(e.hp<=0){
 
-money+=2
-
+money+=5
 return false
 
 }
 
-return true
+return !e.dead
 
 })
+
+if(enemies.length==0 && waveActive){
+
+wave++
+money+=50+wave
+waveActive=false
+
+updateUI()
+
+}
+
+if(health<=0){
+gameOver()
+}
 
 }
 
@@ -230,27 +203,29 @@ function draw(){
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
 
+ctx.strokeStyle="#444"
+
 for(let x=0;x<cols;x++){
 for(let y=0;y<rows;y++){
 
-ctx.strokeStyle="#3e4b3e"
-ctx.strokeRect(x*gridSize,y*gridSize,gridSize,gridSize)
+ctx.strokeRect(x*grid,y*grid,grid,grid)
 
 }
 }
 
 ctx.strokeStyle="yellow"
 ctx.lineWidth=6
+
 ctx.beginPath()
 
 for(let i=0;i<path.length;i++){
 
 let p=path[i]
 
-let px=p.x*gridSize+25
-let py=p.y*gridSize+25
+let px=p.x*grid+grid/2
+let py=p.y*grid+grid/2
 
-if(i===0) ctx.moveTo(px,py)
+if(i==0) ctx.moveTo(px,py)
 else ctx.lineTo(px,py)
 
 }
@@ -259,18 +234,13 @@ ctx.stroke()
 
 for(let t of towers){
 
-ctx.fillStyle={
-rod:"blue",
-rapid:"cyan",
-farm:"green",
-support:"purple"
-}[t.type]
+ctx.fillStyle="blue"
 
 ctx.fillRect(
-t.x*gridSize+10,
-t.y*gridSize+10,
-30,
-30
+t.x*grid+8,
+t.y*grid+8,
+grid-16,
+grid-16
 )
 
 }
@@ -282,9 +252,9 @@ ctx.fillStyle="red"
 ctx.beginPath()
 
 ctx.arc(
-e.x*gridSize+25,
-e.y*gridSize+25,
-10,
+e.x*grid+grid/2,
+e.y*grid+grid/2,
+8,
 0,
 Math.PI*2
 )
@@ -292,84 +262,28 @@ Math.PI*2
 ctx.fill()
 
 }
-
-for(let b of bullets){
-
-ctx.fillStyle="white"
-
-ctx.beginPath()
-
-ctx.arc(
-b.x*gridSize+25,
-b.y*gridSize+25,
-4,
-0,
-Math.PI*2
-)
-
-ctx.fill()
-
-}
-
-}
-
-function nextWave(){
-
-money+=50+wave
-
-if(wave%10===0){
-air++
-}
-
-wave++
-
-updateUI()
-
-spawnWave()
-
-}
-
-function activateAirstrike(){
-
-if(air<=0) return
-
-canvas.addEventListener("click",strike,{once:true})
-
-}
-
-function strike(e){
-
-const rect=canvas.getBoundingClientRect()
-
-let x=(e.clientX-rect.left)/gridSize
-let y=(e.clientY-rect.top)/gridSize
-
-for(let enemy of enemies){
-
-let dx=enemy.x-x
-let dy=enemy.y-y
-
-let dist=Math.sqrt(dx*dx+dy*dy)
-
-if(dist<2){
-
-enemy.hp-=200
-
-}
-
-}
-
-air--
-
-updateUI()
 
 }
 
 function updateUI(){
 
 document.getElementById("money").innerText=money
+document.getElementById("health").innerText=health
 document.getElementById("wave").innerText=wave
-document.getElementById("air").innerText=air
+
+}
+
+function gameOver(){
+
+document.getElementById("gameover").style.display="block"
+
+document.getElementById("finalWave").innerText=wave
+
+let best=localStorage.getItem("bestWave")
+
+if(!best || wave>best){
+localStorage.setItem("bestWave",wave)
+}
 
 }
 
@@ -378,44 +292,8 @@ function gameLoop(){
 update()
 draw()
 
-if(enemies.length===0){
-
-nextWave()
-
-}
-
 requestAnimationFrame(gameLoop)
 
 }
 
-function saveScore(){
-
-let scores=JSON.parse(localStorage.getItem("tdscores")||"[]")
-
-scores.push({name:playerName,wave:wave})
-
-scores.sort((a,b)=>b.wave-a.wave)
-
-scores=scores.slice(0,10)
-
-localStorage.setItem("tdscores",JSON.stringify(scores))
-
-}
-
-function loadLeaderboard(){
-
-let scores=JSON.parse(localStorage.getItem("tdscores")||"[]")
-
-let html=""
-
-for(let s of scores){
-
-html+=`${s.name} - Wave ${s.wave}<br>`
-
-}
-
-document.getElementById("leaderboard").innerHTML=html
-
-}
-
-loadLeaderboard()
+gameLoop()
