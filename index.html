@@ -2,39 +2,20 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Hart Baits Tower Defense</title>
+<title>Hart Baits TD</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="startMenu">
-
-<h1>Hart Baits Tower Defense</h1>
-
-<label>Choose Map</label>
-
-<select id="mapSelect">
-<option value="river">River Bend</option>
-<option value="swamp">Swamp Path</option>
-<option value="harbor">Harbor Route</option>
-</select>
-
-<br><br>
-
-<button onclick="startGame()">Start Game</button>
-
-</div>
-
-
-<div id="gameContainer">
+<div id="container">
 
 <div id="leftPanel">
 
-<h2>Upgrades</h2>
+<h2>Upgrade</h2>
 
 <div id="towerInfo">
-Click a tower
+Select a tower
 </div>
 
 <button id="upgradeBtn">Upgrade</button>
@@ -52,24 +33,19 @@ Click a tower
 
 <div id="rightPanel">
 
-<h2>Stats</h2>
+<h2>Status</h2>
 
 Money: $<span id="money">300</span><br>
 Health: <span id="health">20</span><br>
-Wave: <span id="wave">1</span><br>
+Wave: <span id="wave">1</span>
 
-<button onclick="nextWave()">Next Wave</button>
+<button onclick="nextWave()">Start Wave</button>
 
 <h3>Towers</h3>
 
-<div class="towerGrid">
-
-<img src="https://cdn-icons-png.flaticon.com/512/616/616494.png" onclick="selectTower('rod')">
-<img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png" onclick="selectTower('rapid')">
-<img src="https://cdn-icons-png.flaticon.com/512/2917/2917990.png" onclick="selectTower('farm')">
-<img src="https://cdn-icons-png.flaticon.com/512/149/149852.png" onclick="selectTower('support')">
-
-</div>
+<button onclick="selectTower('rod')">Rod Tower ($100)</button>
+<button onclick="selectTower('rapid')">Rapid Tower ($150)</button>
+<button onclick="selectTower('farm')">Money Farm ($200)</button>
 
 </div>
 
