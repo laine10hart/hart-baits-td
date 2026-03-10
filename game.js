@@ -1,71 +1,51 @@
-const canvas=document.getElementById("game")
-const ctx=canvas.getContext("2d")
+const canvas = document.getElementById("game")
+const ctx = canvas.getContext("2d")
 
-const grid=40
+const grid = 40
 
-let towers=[]
-let enemies=[]
-let bullets=[]
+let money = 300
+let health = 20
+let wave = 1
 
-let money=300
-let health=20
-let wave=1
+let towers = []
+let enemies = []
+let bullets = []
 
-let selectedTowerType=null
-let selectedTower=null
+let selectedTowerType = null
+let selectedTower = null
 
-const maps={
+const towerStats = {
+rod:{cost:100,range:3,rate:50,damage:12},
+rapid:{cost:150,range:3,rate:25,damage:7},
+farm:{cost:200}
+}
 
-river:[
-{x:0,y:5},{x:5,y:5},{x:5,y:9},{x:14,y:9},{x:14,y:3},{x:21,y:3}
-],
-
-swamp:[
-{x:0,y:8},{x:6,y:8},{x:6,y:2},{x:14,y:2},{x:14,y:9},{x:21,y:9}
-],
-
-harbor:[
-{x:0,y:4},{x:6,y:4},{x:6,y:10},{x:16,y:10},{x:16,y:3},{x:21,y:3}
+// Medium difficulty river map
+const path = [
+{x:0,y:6},
+{x:4,y:6},
+{x:4,y:9},
+{x:12,y:9},
+{x:12,y:3},
+{x:18,y:3},
+{x:18,y:6},
+{x:22,y:6}
 ]
-
-}
-
-let path=maps.river
-
-function startGame(){
-
-let map=document.getElementById("mapSelect").value
-
-path=maps[map]
-
-document.getElementById("startMenu").style.display="none"
-document.getElementById("gameContainer").style.display="flex"
-
-}
-
-const towerStats={
-
-rod:{cost:100,range:3,rate:40,damage:10},
-rapid:{cost:150,range:3,rate:15,damage:6},
-farm:{cost:200},
-support:{cost:180,range:4}
-
-}
 
 canvas.addEventListener("click",e=>{
 
-const rect=canvas.getBoundingClientRect()
+const rect = canvas.getBoundingClientRect()
 
-let x=Math.floor((e.clientX-rect.left)/grid)
-let y=Math.floor((e.clientY-rect.top)/grid)
+let x = Math.floor((e.clientX-rect.left)/grid)
+let y = Math.floor((e.clientY-rect.top)/grid)
 
 if(selectedTowerType){
 
-let stats=towerStats[selectedTowerType]
+let stats = towerStats[selectedTowerType]
 
-if(money<stats.cost)return
+if(money < stats.cost) return
 
-let tower={
+let tower = {
 x,y,
 type:selectedTowerType,
 tier:1,
@@ -74,7 +54,8 @@ cool:0
 
 towers.push(tower)
 
-money-=stats.cost
+money -= stats.cost
+
 updateUI()
 
 return
@@ -94,22 +75,15 @@ showTowerInfo()
 })
 
 function selectTower(type){
-
 selectedTowerType=type
-selectedTower=null
-
 }
 
 function showTowerInfo(){
 
 if(!selectedTower)return
 
-document.getElementById("towerInfo").innerHTML=`
-
-Type: ${selectedTower.type}<br>
-Tier: ${selectedTower.tier}
-
-`
+document.getElementById("towerInfo").innerHTML =
+"Tower: "+selectedTower.type+"<br>Level: "+selectedTower.tier
 
 }
 
@@ -117,15 +91,15 @@ document.getElementById("upgradeBtn").onclick=()=>{
 
 if(!selectedTower)return
 
-let cost=50*selectedTower.tier
+let cost = 60 * selectedTower.tier
 
 if(money<cost)return
 
-money-=cost
+money -= cost
 selectedTower.tier++
 
-showTowerInfo()
 updateUI()
+showTowerInfo()
 
 }
 
@@ -133,11 +107,12 @@ document.getElementById("sellBtn").onclick=()=>{
 
 if(!selectedTower)return
 
-money+=50
+money += 50
 
-towers=towers.filter(t=>t!=selectedTower)
+towers = towers.filter(t=>t!=selectedTower)
 
-selectedTower=null
+selectedTower = null
+
 updateUI()
 
 }
@@ -146,7 +121,7 @@ function nextWave(){
 
 for(let i=0;i<wave*3;i++){
 
-setTimeout(()=>spawnEnemy(),i*500)
+setTimeout(()=>spawnEnemy(),i*800)
 
 }
 
@@ -157,8 +132,8 @@ function spawnEnemy(){
 enemies.push({
 x:path[0].x,
 y:path[0].y,
-hp:40+wave*15,
-speed:0.02+wave*0.002,
+hp:40+wave*10,
+speed:0.01,
 step:0
 })
 
@@ -171,18 +146,16 @@ for(let e of enemies){
 let target=path[e.step+1]
 
 if(!target){
-
 health--
 e.dead=true
 continue
-
 }
 
 let dx=target.x-e.x
 let dy=target.y-e.y
 
-e.x+=dx*e.speed
-e.y+=dy*e.speed
+e.x += dx*e.speed
+e.y += dy*e.speed
 
 if(Math.abs(dx)<0.1 && Math.abs(dy)<0.1){
 e.step++
@@ -193,9 +166,7 @@ e.step++
 enemies=enemies.filter(e=>!e.dead)
 
 if(health<=0){
-
 alert("Game Over")
-
 }
 
 }
@@ -204,7 +175,8 @@ function draw(){
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
 
-ctx.strokeStyle="yellow"
+// river path
+ctx.strokeStyle="#a6ff00"
 ctx.lineWidth=6
 
 ctx.beginPath()
@@ -223,9 +195,10 @@ else ctx.lineTo(px,py)
 
 ctx.stroke()
 
+// towers
 for(let t of towers){
 
-ctx.fillStyle="blue"
+ctx.fillStyle="#0044ff"
 
 ctx.fillRect(
 t.x*grid+8,
@@ -236,6 +209,7 @@ grid-16
 
 }
 
+// enemies
 for(let e of enemies){
 
 ctx.fillStyle="red"
