@@ -3,24 +3,18 @@ background:#1b1b1b;
 color:white;
 font-family:Arial;
 text-align:center;
-margin:0;
 }
 
-#menu{
-padding:40px;
+#stats{
+margin:10px;
+}
+
+#shop button{
+margin:4px;
+padding:8px;
 }
 
 canvas{
 background:#2f3b2f;
 border:3px solid #444;
-}
-
-button{
-padding:6px 12px;
-margin:4px;
-}
-
-#topbar{
-background:#222;
-padding:10px;
 }
