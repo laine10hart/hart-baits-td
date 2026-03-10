@@ -2,8 +2,10 @@ const canvas=document.getElementById("game")
 const ctx=canvas.getContext("2d")
 
 const grid=40
-const cols=22
-const rows=12
+
+let towers=[]
+let enemies=[]
+let bullets=[]
 
 let money=300
 let health=20
@@ -12,25 +14,43 @@ let wave=1
 let selectedTowerType=null
 let selectedTower=null
 
-let towers=[]
-let enemies=[]
-let bullets=[]
+const maps={
 
-const towerStats={
-rod:{cost:100,range:3,rate:40,damage:10},
-rapid:{cost:150,range:3,rate:15,damage:6},
-farm:{cost:200,range:0,rate:0,damage:0},
-support:{cost:180,range:4,rate:0,damage:0}
+river:[
+{x:0,y:5},{x:5,y:5},{x:5,y:9},{x:14,y:9},{x:14,y:3},{x:21,y:3}
+],
+
+swamp:[
+{x:0,y:8},{x:6,y:8},{x:6,y:2},{x:14,y:2},{x:14,y:9},{x:21,y:9}
+],
+
+harbor:[
+{x:0,y:4},{x:6,y:4},{x:6,y:10},{x:16,y:10},{x:16,y:3},{x:21,y:3}
+]
+
 }
 
-const path=[
-{x:0,y:5},
-{x:5,y:5},
-{x:5,y:9},
-{x:14,y:9},
-{x:14,y:3},
-{x:21,y:3}
-]
+let path=maps.river
+
+function startGame(){
+
+let map=document.getElementById("mapSelect").value
+
+path=maps[map]
+
+document.getElementById("startMenu").style.display="none"
+document.getElementById("gameContainer").style.display="flex"
+
+}
+
+const towerStats={
+
+rod:{cost:100,range:3,rate:40,damage:10},
+rapid:{cost:150,range:3,rate:15,damage:6},
+farm:{cost:200},
+support:{cost:180,range:4}
+
+}
 
 canvas.addEventListener("click",e=>{
 
@@ -66,7 +86,6 @@ if(t.x==x && t.y==y){
 
 selectedTower=t
 showTowerInfo()
-return
 
 }
 
@@ -83,17 +102,13 @@ selectedTower=null
 
 function showTowerInfo(){
 
-let info=document.getElementById("towerInfo")
+if(!selectedTower)return
 
-if(!selectedTower){
+document.getElementById("towerInfo").innerHTML=`
 
-info.innerHTML="Click a tower"
-return
-}
-
-info.innerHTML=`
 Type: ${selectedTower.type}<br>
 Tier: ${selectedTower.tier}
+
 `
 
 }
@@ -107,11 +122,9 @@ let cost=50*selectedTower.tier
 if(money<cost)return
 
 money-=cost
-
 selectedTower.tier++
 
 showTowerInfo()
-
 updateUI()
 
 }
@@ -125,9 +138,6 @@ money+=50
 towers=towers.filter(t=>t!=selectedTower)
 
 selectedTower=null
-
-showTowerInfo()
-
 updateUI()
 
 }
@@ -180,83 +190,7 @@ e.step++
 
 }
 
-for(let t of towers){
-
-t.cool--
-
-if(t.cool>0)continue
-
-let stats=towerStats[t.type]
-
-if(!stats.range)continue
-
-for(let e of enemies){
-
-let dx=e.x-t.x
-let dy=e.y-t.y
-
-let dist=Math.sqrt(dx*dx+dy*dy)
-
-if(dist<stats.range){
-
-bullets.push({
-x:t.x,
-y:t.y,
-target:e,
-dmg:stats.damage*t.tier
-})
-
-t.cool=stats.rate
-break
-
-}
-
-}
-
-}
-
-for(let b of bullets){
-
-let dx=b.target.x-b.x
-let dy=b.target.y-b.y
-
-let dist=Math.sqrt(dx*dx+dy*dy)
-
-b.x+=dx/dist*0.3
-b.y+=dy/dist*0.3
-
-if(dist<0.2){
-
-b.target.hp-=b.dmg
-b.dead=true
-
-}
-
-}
-
-bullets=bullets.filter(b=>!b.dead)
-
-enemies=enemies.filter(e=>{
-
-if(e.hp<=0){
-
-money+=5
-return false
-
-}
-
-return !e.dead
-
-})
-
-if(enemies.length==0){
-
-wave++
-money+=50+wave
-
-updateUI()
-
-}
+enemies=enemies.filter(e=>!e.dead)
 
 if(health<=0){
 
@@ -269,16 +203,6 @@ alert("Game Over")
 function draw(){
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
-
-ctx.strokeStyle="#444"
-
-for(let x=0;x<cols;x++){
-for(let y=0;y<rows;y++){
-
-ctx.strokeRect(x*grid,y*grid,grid,grid)
-
-}
-}
 
 ctx.strokeStyle="yellow"
 ctx.lineWidth=6
