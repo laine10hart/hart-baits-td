@@ -3,39 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Hart Baits TD</title>
-
-<style>
-
-body{
-margin:0;
-font-family:Arial;
-background:#2c4f4f;
-color:white;
-overflow:hidden;
-}
-
-#ui{
-position:absolute;
-right:0;
-top:0;
-width:220px;
-height:100%;
-background:#1e2e2e;
-padding:10px;
-}
-
-button{
-width:100%;
-margin:4px 0;
-padding:6px;
-cursor:pointer;
-}
-
-canvas{
-background:#4fa96c;
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -44,26 +12,37 @@ background:#4fa96c;
 
 <div id="ui">
 
-<h3>Status</h3>
+<h2>Status</h2>
 
 Money: $<span id="money">300</span><br>
 Health: <span id="health">100</span>
 
 <button onclick="startWave()">Start Wave</button>
-<button onclick="toggleSpeed()">2x Speed</button>
+<button onclick="toggleSpeed()">2× Speed</button>
 
 <h3>Towers</h3>
 
-<button onclick="selectTower(0)">Basic</button>
-<button onclick="selectTower(1)">Rapid</button>
-<button onclick="selectTower(2)">Sniper</button>
-<button onclick="selectTower(3)">Freeze</button>
-<button onclick="selectTower(4)">Cannon</button>
-<button onclick="selectTower(5)">Splash</button>
-<button onclick="selectTower(6)">Laser</button>
-<button onclick="selectTower(7)">Poison</button>
-<button onclick="selectTower(8)">Farm</button>
-<button onclick="selectTower(9)">Support</button>
+<div id="towerBar">
+
+<div class="towerBtn" data-id="0">
+<img src="https://cdn-icons-png.flaticon.com/512/616/616494.png">
+</div>
+
+<div class="towerBtn" data-id="1">
+<img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png">
+</div>
+
+<div class="towerBtn" data-id="2">
+<img src="https://cdn-icons-png.flaticon.com/512/2917/2917990.png">
+</div>
+
+<div class="towerBtn" data-id="3">
+<img src="https://cdn-icons-png.flaticon.com/512/149/149852.png">
+</div>
+
+</div>
+
+<div id="towerTooltip"></div>
 
 </div>
 
