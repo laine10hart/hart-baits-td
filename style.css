@@ -1,18 +1,18 @@
 body{
 margin:0;
-background:#2c4f4f;
 font-family:Arial;
+background:#1f3f3f;
 }
 
 canvas{
-background:#4fa96c;
+background:#5ca66b;
 }
 
 #ui{
 position:absolute;
 right:0;
 top:0;
-width:240px;
+width:250px;
 height:100%;
 background:#1e2e2e;
 color:white;
@@ -21,22 +21,28 @@ padding:10px;
 
 #towerBar{
 display:grid;
-grid-template-columns:repeat(2,90px);
+grid-template-columns:repeat(2,100px);
 gap:10px;
 }
 
-.towerBtn{
+.tower{
 background:#333;
-padding:8px;
+padding:5px;
 cursor:pointer;
+text-align:center;
 }
 
-.towerBtn img{
-width:70px;
-height:70px;
+.tower img{
+width:60px;
+height:60px;
 }
 
-#towerTooltip{
+.price{
+font-size:12px;
+color:#9df;
+}
+
+#tooltip{
 margin-top:10px;
 background:#111;
 padding:8px;
