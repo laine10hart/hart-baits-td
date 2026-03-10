@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Hart Baits TD</title>
+<title>Hart Baits Tower Defense</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -11,25 +11,15 @@
 <div id="container">
 
 <div id="leftPanel">
-
-<h2>Upgrade</h2>
-
-<div id="towerInfo">
-Select a tower
-</div>
-
+<h2>Upgrades</h2>
+<div id="towerInfo">Click a tower</div>
 <button id="upgradeBtn">Upgrade</button>
 <button id="sellBtn">Sell</button>
-
 </div>
-
 
 <div id="gameArea">
-
 <canvas id="game" width="900" height="500"></canvas>
-
 </div>
-
 
 <div id="rightPanel">
 
@@ -39,13 +29,13 @@ Money: $<span id="money">300</span><br>
 Health: <span id="health">20</span><br>
 Wave: <span id="wave">1</span>
 
-<button onclick="nextWave()">Start Wave</button>
+<button onclick="startWave()">Start Wave</button>
 
 <h3>Towers</h3>
 
-<button onclick="selectTower('rod')">Rod Tower ($100)</button>
-<button onclick="selectTower('rapid')">Rapid Tower ($150)</button>
-<button onclick="selectTower('farm')">Money Farm ($200)</button>
+<button onclick="selectTower('rod')">Rod Tower</button>
+<button onclick="selectTower('rapid')">Rapid Tower</button>
+<button onclick="selectTower('farm')">Money Farm</button>
 
 </div>
 
