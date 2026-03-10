@@ -1,7 +1,8 @@
 const canvas = document.getElementById("game")
 const ctx = canvas.getContext("2d")
 
-const tooltip = document.getElementById("towerTooltip")
+const tooltip = document.getElementById("tooltip")
+const towerBar = document.getElementById("towerBar")
 
 let money = 300
 let health = 100
@@ -15,42 +16,55 @@ let selectedTower=null
 let mouseX=0
 let mouseY=0
 
+// river path bottom → top
 const path=[
-{x:500,y:600},
-{x:500,y:420},
-{x:700,y:420},
-{x:700,y:200},
-{x:300,y:200},
-{x:300,y:0}
+{x:480,y:600},
+{x:480,y:450},
+{x:650,y:420},
+{x:700,y:260},
+{x:550,y:150},
+{x:400,y:0}
 ]
 
-const towersData=[
+const towerData=[
 
-{name:"Basic",range:140,rate:60,damage:10,cost:100},
-{name:"Rapid",range:120,rate:25,damage:6,cost:150},
-{name:"Sniper",range:260,rate:100,damage:28,cost:220},
-{name:"Freeze",range:140,rate:70,damage:4,cost:180}
+{name:"Basic",damage:10,rate:60,range:140,cost:100,icon:"https://cdn-icons-png.flaticon.com/512/616/616494.png"},
+{name:"Rapid",damage:6,rate:25,range:120,cost:150,icon:"https://cdn-icons-png.flaticon.com/512/3523/3523063.png"},
+{name:"Sniper",damage:30,rate:100,range:260,cost:220,icon:"https://cdn-icons-png.flaticon.com/512/2917/2917990.png"},
+{name:"Freeze",damage:5,rate:70,range:150,cost:180,icon:"https://cdn-icons-png.flaticon.com/512/149/149852.png"},
+{name:"Cannon",damage:20,rate:80,range:170,cost:200,icon:"https://cdn-icons-png.flaticon.com/512/833/833472.png"},
+{name:"Splash",damage:18,rate:90,range:160,cost:180,icon:"https://cdn-icons-png.flaticon.com/512/861/861060.png"},
+{name:"Laser",damage:22,rate:50,range:200,cost:250,icon:"https://cdn-icons-png.flaticon.com/512/483/483947.png"},
+{name:"Poison",damage:12,rate:70,range:160,cost:200,icon:"https://cdn-icons-png.flaticon.com/512/616/616408.png"},
+{name:"Farm",damage:0,rate:0,range:0,cost:200,icon:"https://cdn-icons-png.flaticon.com/512/427/427735.png"},
+{name:"Support",damage:8,rate:100,range:180,cost:220,icon:"https://cdn-icons-png.flaticon.com/512/149/149060.png"}
 
 ]
 
-document.querySelectorAll(".towerBtn").forEach(btn=>{
+// create tower icons
+towerData.forEach((t,i)=>{
 
-btn.onmouseenter=()=>{
+let div=document.createElement("div")
+div.className="tower"
 
-let id=btn.dataset.id
-let t=towersData[id]
+div.innerHTML=
+`<img src="${t.icon}">
+<div class="price">$${t.cost}</div>`
 
+div.onmouseenter=()=>{
 tooltip.innerHTML=
 t.name+"<br>"+
 "Damage: "+t.damage+"<br>"+
 "Speed: "+t.rate+"<br>"+
+"Range: "+t.range+"<br>"+
 "Cost: $"+t.cost
-
 }
 
-btn.onclick=()=>{
-selectedTower=parseInt(btn.dataset.id)
+div.onclick=()=>{
+selectedTower=i
 }
+
+towerBar.appendChild(div)
 
 })
 
@@ -64,7 +78,7 @@ canvas.addEventListener("click",()=>{
 
 if(selectedTower===null)return
 
-let t=towersData[selectedTower]
+let t=towerData[selectedTower]
 
 if(money<t.cost)return
 
@@ -96,8 +110,8 @@ function spawnEnemy(){
 enemies.push({
 x:path[0].x,
 y:path[0].y,
-hp:50,
-speed:0.7,
+hp:60,
+speed:0.8,
 step:0
 })
 
@@ -105,7 +119,7 @@ step:0
 
 function toggleSpeed(){
 
-speed = speed===1 ? 2 : 1
+speed=speed===1?2:1
 
 }
 
@@ -135,11 +149,11 @@ if(dist<5)e.step++
 
 for(let t of towers){
 
-let stats=towersData[t.type]
+let stats=towerData[t.type]
 
 t.cool--
 
-if(t.cool>0)continue
+if(t.cool>0||!stats.range)continue
 
 for(let e of enemies){
 
@@ -190,10 +204,8 @@ bullets=bullets.filter(b=>!b.dead)
 enemies=enemies.filter(e=>{
 
 if(e.hp<=0){
-
 money+=10
 return false
-
 }
 
 return !e.dead
@@ -206,11 +218,13 @@ function draw(){
 
 ctx.clearRect(0,0,canvas.width,canvas.height)
 
-ctx.fillStyle="#4fa96c"
+// grass
+ctx.fillStyle="#5ca66b"
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
+// river
 ctx.strokeStyle="#3aa0ff"
-ctx.lineWidth=60
+ctx.lineWidth=70
 
 ctx.beginPath()
 ctx.moveTo(path[0].x,path[0].y)
@@ -221,15 +235,16 @@ ctx.lineTo(p.x,p.y)
 
 ctx.stroke()
 
+// towers
 for(let t of towers){
 
 ctx.fillStyle="#222"
 
 ctx.beginPath()
-ctx.arc(t.x,t.y,14,0,Math.PI*2)
+ctx.arc(t.x,t.y,15,0,Math.PI*2)
 ctx.fill()
 
-let stats=towersData[t.type]
+let stats=towerData[t.type]
 
 ctx.strokeStyle="rgba(255,255,255,0.2)"
 ctx.beginPath()
@@ -238,16 +253,18 @@ ctx.stroke()
 
 }
 
+// fish enemies
 for(let e of enemies){
 
 ctx.fillStyle="orange"
 
 ctx.beginPath()
-ctx.arc(e.x,e.y,10,0,Math.PI*2)
+ctx.arc(e.x,e.y,12,0,Math.PI*2)
 ctx.fill()
 
 }
 
+// bullets
 for(let b of bullets){
 
 ctx.fillStyle="yellow"
@@ -258,9 +275,10 @@ ctx.fill()
 
 }
 
+// preview circle
 if(selectedTower!==null){
 
-let stats=towersData[selectedTower]
+let stats=towerData[selectedTower]
 
 ctx.strokeStyle="rgba(255,255,255,0.3)"
 ctx.beginPath()
