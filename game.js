@@ -3,181 +3,111 @@ const ctx = canvas.getContext("2d")
 
 let money = 300
 let health = 100
-let wave = 1
-let gameSpeed = 1
+let speed = 1
 
-let towers = []
-let enemies = []
-let bullets = []
+let towers=[]
+let enemies=[]
+let bullets=[]
 
-let selectedTowerType = null
-let selectedTower = null
+let selectedTower=null
 
-const towerStats = {
-
-basic:{cost:100,range:150,rate:60,damage:10},
-rapid:{cost:150,range:130,rate:25,damage:6},
-sniper:{cost:220,range:260,rate:100,damage:28},
-freeze:{cost:180,range:140,rate:70,damage:4},
-farm:{cost:200}
-
-}
-
-// river path bottom → top
-const path = [
-
-{x:450,y:550},
-{x:450,y:420},
-{x:650,y:420},
-{x:650,y:200},
+// river path
+const path=[
+{x:500,y:600},
+{x:500,y:420},
+{x:700,y:420},
+{x:700,y:200},
 {x:300,y:200},
 {x:300,y:0}
+]
+
+// tower types
+const towerTypes=[
+
+{range:140,rate:60,damage:10,cost:100},
+{range:120,rate:25,damage:6,cost:150},
+{range:260,rate:100,damage:28,cost:220},
+{range:140,rate:70,damage:4,cost:180},
+{range:160,rate:80,damage:18,cost:200},
+{range:150,rate:90,damage:14,cost:180},
+{range:200,rate:50,damage:20,cost:250},
+{range:160,rate:70,damage:12,cost:200},
+{range:0,rate:0,damage:0,cost:200},
+{range:180,rate:100,damage:8,cost:220}
 
 ]
 
-// click canvas
-canvas.addEventListener("click",e=>{
+// select tower
+function selectTower(id){
 
-const rect = canvas.getBoundingClientRect()
+selectedTower=id
 
-let x = e.clientX - rect.left
-let y = e.clientY - rect.top
+}
 
 // place tower
-if(selectedTowerType){
+canvas.onclick=e=>{
 
-let stats = towerStats[selectedTowerType]
+if(selectedTower===null)return
 
-if(money < stats.cost) return
+let rect=canvas.getBoundingClientRect()
 
-let tower = {
+let x=e.clientX-rect.left
+let y=e.clientY-rect.top
 
-x,
-y,
-type:selectedTowerType,
-tier:1,
+let t=towerTypes[selectedTower]
+
+if(money<t.cost)return
+
+towers.push({
+
+x,y,
+type:selectedTower,
 cool:0
-
-}
-
-towers.push(tower)
-
-money -= stats.cost
-updateUI()
-
-return
-
-}
-
-// select tower
-for(let t of towers){
-
-let dx = t.x-x
-let dy = t.y-y
-
-if(Math.sqrt(dx*dx+dy*dy)<20){
-
-selectedTower = t
-showTowerInfo()
-
-}
-
-}
 
 })
 
-// choose tower
-function selectTower(type){
-
-selectedTowerType = type
-
-}
-
-// tower info
-function showTowerInfo(){
-
-if(!selectedTower)return
-
-document.getElementById("towerInfo").innerHTML =
-
-"Tower: "+selectedTower.type+
-"<br>Level: "+selectedTower.tier
-
-}
-
-// upgrade
-document.getElementById("upgradeBtn").onclick = ()=>{
-
-if(!selectedTower)return
-
-let cost = 80 * selectedTower.tier
-
-if(money<cost)return
-
-money -= cost
-selectedTower.tier++
-
-showTowerInfo()
+money-=t.cost
 updateUI()
 
 }
 
-// sell
-document.getElementById("sellBtn").onclick = ()=>{
-
-if(!selectedTower)return
-
-money += 70
-
-towers = towers.filter(t=>t!==selectedTower)
-
-selectedTower=null
-
-document.getElementById("towerInfo").innerHTML="Select a tower"
-
-updateUI()
-
-}
-
-// start wave
+// spawn enemies
 function startWave(){
 
-for(let i=0;i<wave*4;i++){
+for(let i=0;i<6;i++){
 
-setTimeout(spawnEnemy,i*900)
-
-}
-
-}
-
-// spawn enemy
-function spawnEnemy(){
+setTimeout(()=>{
 
 enemies.push({
 
 x:path[0].x,
 y:path[0].y,
-hp:50+wave*12,
-speed:0.7,
+hp:50,
+speed:0.6,
 step:0
 
 })
 
+},i*900)
+
 }
 
-// toggle speed
+}
+
+// speed toggle
 function toggleSpeed(){
 
-gameSpeed = gameSpeed===1 ? 2 : 1
+speed = speed===1 ? 2 : 1
 
 }
 
 // update
 function update(){
 
+// move enemies
 for(let e of enemies){
 
-let target = path[e.step+1]
+let target=path[e.step+1]
 
 if(!target){
 
@@ -187,13 +117,13 @@ continue
 
 }
 
-let dx = target.x-e.x
-let dy = target.y-e.y
+let dx=target.x-e.x
+let dy=target.y-e.y
 
-let dist = Math.sqrt(dx*dx+dy*dy)
+let dist=Math.sqrt(dx*dx+dy*dy)
 
-e.x += dx/dist * e.speed * gameSpeed
-e.y += dy/dist * e.speed * gameSpeed
+e.x+=dx/dist*e.speed*speed
+e.y+=dy/dist*e.speed*speed
 
 if(dist<5){
 e.step++
@@ -204,13 +134,11 @@ e.step++
 // towers shoot
 for(let t of towers){
 
+let stats=towerTypes[t.type]
+
 t.cool--
 
 if(t.cool>0)continue
-
-let stats = towerStats[t.type]
-
-if(!stats.range)continue
 
 for(let e of enemies){
 
@@ -226,7 +154,7 @@ bullets.push({
 x:t.x,
 y:t.y,
 target:e,
-dmg:stats.damage*t.tier
+dmg:stats.damage
 
 })
 
@@ -247,8 +175,8 @@ let dy=b.target.y-b.y
 
 let dist=Math.sqrt(dx*dx+dy*dy)
 
-b.x+=dx/dist*4*gameSpeed
-b.y+=dy/dist*4*gameSpeed
+b.x+=dx/dist*4
+b.y+=dy/dist*4
 
 if(dist<10){
 
@@ -259,13 +187,13 @@ b.dead=true
 
 }
 
-bullets = bullets.filter(b=>!b.dead)
+bullets=bullets.filter(b=>!b.dead)
 
-enemies = enemies.filter(e=>{
+enemies=enemies.filter(e=>{
 
 if(e.hp<=0){
 
-money+=12
+money+=10
 return false
 
 }
@@ -273,12 +201,6 @@ return false
 return !e.dead
 
 })
-
-if(health<=0){
-
-alert("Game Over")
-
-}
 
 }
 
@@ -288,12 +210,12 @@ function draw(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
 
 // grass
-ctx.fillStyle="#3f7f3f"
+ctx.fillStyle="#4fa96c"
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
 // river
 ctx.strokeStyle="#3aa0ff"
-ctx.lineWidth=50
+ctx.lineWidth=60
 
 ctx.beginPath()
 
@@ -311,15 +233,23 @@ for(let t of towers){
 ctx.fillStyle="#222"
 
 ctx.beginPath()
-ctx.arc(t.x,t.y,15,0,Math.PI*2)
+ctx.arc(t.x,t.y,14,0,Math.PI*2)
 ctx.fill()
+
+// range circle
+let stats=towerTypes[t.type]
+
+ctx.strokeStyle="rgba(255,255,255,0.2)"
+ctx.beginPath()
+ctx.arc(t.x,t.y,stats.range,0,Math.PI*2)
+ctx.stroke()
 
 }
 
-// enemies
+// enemies (fish)
 for(let e of enemies){
 
-ctx.fillStyle="red"
+ctx.fillStyle="orange"
 
 ctx.beginPath()
 ctx.arc(e.x,e.y,10,0,Math.PI*2)
@@ -340,18 +270,20 @@ ctx.fill()
 
 }
 
+// UI
 function updateUI(){
 
 document.getElementById("money").innerText=money
 document.getElementById("health").innerText=health
-document.getElementById("wave").innerText=wave
 
 }
 
+// loop
 function loop(){
 
 update()
 draw()
+updateUI()
 
 requestAnimationFrame(loop)
 
