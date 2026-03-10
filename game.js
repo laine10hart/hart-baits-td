@@ -1,17 +1,21 @@
 const canvas = document.getElementById("game")
 const ctx = canvas.getContext("2d")
 
+const tooltip = document.getElementById("towerTooltip")
+
 let money = 300
 let health = 100
-let gameSpeed = 1
+let speed = 1
 
-let towers = []
-let enemies = []
-let bullets = []
+let towers=[]
+let enemies=[]
+let bullets=[]
 
-let selectedTower = null
+let selectedTower=null
+let mouseX=0
+let mouseY=0
 
-const path = [
+const path=[
 {x:500,y:600},
 {x:500,y:420},
 {x:700,y:420},
@@ -20,46 +24,58 @@ const path = [
 {x:300,y:0}
 ]
 
-const towersData = [
+const towersData=[
 
-{range:140,rate:60,damage:10,cost:100},
-{range:120,rate:25,damage:6,cost:150},
-{range:260,rate:100,damage:28,cost:220},
-{range:140,rate:70,damage:4,cost:180},
-{range:160,rate:80,damage:18,cost:200},
-{range:150,rate:90,damage:14,cost:180},
-{range:200,rate:50,damage:20,cost:250},
-{range:160,rate:70,damage:12,cost:200},
-{range:0,rate:0,damage:0,cost:200},
-{range:180,rate:100,damage:8,cost:220}
+{name:"Basic",range:140,rate:60,damage:10,cost:100},
+{name:"Rapid",range:120,rate:25,damage:6,cost:150},
+{name:"Sniper",range:260,rate:100,damage:28,cost:220},
+{name:"Freeze",range:140,rate:70,damage:4,cost:180}
 
 ]
 
-function selectTower(id){
-selectedTower = id
+document.querySelectorAll(".towerBtn").forEach(btn=>{
+
+btn.onmouseenter=()=>{
+
+let id=btn.dataset.id
+let t=towersData[id]
+
+tooltip.innerHTML=
+t.name+"<br>"+
+"Damage: "+t.damage+"<br>"+
+"Speed: "+t.rate+"<br>"+
+"Cost: $"+t.cost
+
 }
 
-canvas.addEventListener("click", e=>{
+btn.onclick=()=>{
+selectedTower=parseInt(btn.dataset.id)
+}
 
-if(selectedTower === null) return
+})
 
-let rect = canvas.getBoundingClientRect()
+canvas.addEventListener("mousemove",e=>{
+let rect=canvas.getBoundingClientRect()
+mouseX=e.clientX-rect.left
+mouseY=e.clientY-rect.top
+})
 
-let x = e.clientX - rect.left
-let y = e.clientY - rect.top
+canvas.addEventListener("click",()=>{
 
-let stats = towersData[selectedTower]
+if(selectedTower===null)return
 
-if(money < stats.cost) return
+let t=towersData[selectedTower]
+
+if(money<t.cost)return
 
 towers.push({
-x,y,
+x:mouseX,
+y:mouseY,
 type:selectedTower,
 cool:0
 })
 
-money -= stats.cost
-updateUI()
+money-=t.cost
 
 })
 
@@ -69,7 +85,7 @@ for(let i=0;i<6;i++){
 
 setTimeout(()=>{
 spawnEnemy()
-}, i*800)
+},i*800)
 
 }
 
@@ -88,50 +104,51 @@ step:0
 }
 
 function toggleSpeed(){
-gameSpeed = gameSpeed === 1 ? 2 : 1
+
+speed = speed===1 ? 2 : 1
+
 }
 
 function update(){
 
 for(let e of enemies){
 
-let target = path[e.step+1]
+let target=path[e.step+1]
 
 if(!target){
 health--
-e.dead = true
+e.dead=true
 continue
 }
 
-let dx = target.x - e.x
-let dy = target.y - e.y
+let dx=target.x-e.x
+let dy=target.y-e.y
 
-let dist = Math.sqrt(dx*dx + dy*dy)
+let dist=Math.sqrt(dx*dx+dy*dy)
 
-e.x += dx/dist * e.speed * gameSpeed
-e.y += dy/dist * e.speed * gameSpeed
+e.x+=dx/dist*e.speed*speed
+e.y+=dy/dist*e.speed*speed
 
-if(dist < 5) e.step++
+if(dist<5)e.step++
 
 }
 
 for(let t of towers){
 
-let stats = towersData[t.type]
+let stats=towersData[t.type]
 
 t.cool--
 
-if(t.cool > 0) continue
-if(!stats.range) continue
+if(t.cool>0)continue
 
 for(let e of enemies){
 
-let dx = e.x - t.x
-let dy = e.y - t.y
+let dx=e.x-t.x
+let dy=e.y-t.y
 
-let dist = Math.sqrt(dx*dx + dy*dy)
+let dist=Math.sqrt(dx*dx+dy*dy)
 
-if(dist < stats.range){
+if(dist<stats.range){
 
 bullets.push({
 x:t.x,
@@ -140,7 +157,7 @@ target:e,
 dmg:stats.damage
 })
 
-t.cool = stats.rate
+t.cool=stats.rate
 break
 
 }
@@ -151,28 +168,32 @@ break
 
 for(let b of bullets){
 
-let dx = b.target.x - b.x
-let dy = b.target.y - b.y
+let dx=b.target.x-b.x
+let dy=b.target.y-b.y
 
-let dist = Math.sqrt(dx*dx + dy*dy)
+let dist=Math.sqrt(dx*dx+dy*dy)
 
-b.x += dx/dist * 4
-b.y += dy/dist * 4
+b.x+=dx/dist*4
+b.y+=dy/dist*4
 
-if(dist < 10){
-b.target.hp -= b.dmg
-b.dead = true
+if(dist<10){
+
+b.target.hp-=b.dmg
+b.dead=true
+
 }
 
 }
 
-bullets = bullets.filter(b=>!b.dead)
+bullets=bullets.filter(b=>!b.dead)
 
-enemies = enemies.filter(e=>{
+enemies=enemies.filter(e=>{
 
-if(e.hp <= 0){
-money += 10
+if(e.hp<=0){
+
+money+=10
 return false
+
 }
 
 return !e.dead
@@ -192,7 +213,6 @@ ctx.strokeStyle="#3aa0ff"
 ctx.lineWidth=60
 
 ctx.beginPath()
-
 ctx.moveTo(path[0].x,path[0].y)
 
 for(let p of path){
@@ -209,7 +229,7 @@ ctx.beginPath()
 ctx.arc(t.x,t.y,14,0,Math.PI*2)
 ctx.fill()
 
-let stats = towersData[t.type]
+let stats=towersData[t.type]
 
 ctx.strokeStyle="rgba(255,255,255,0.2)"
 ctx.beginPath()
@@ -238,12 +258,16 @@ ctx.fill()
 
 }
 
+if(selectedTower!==null){
+
+let stats=towersData[selectedTower]
+
+ctx.strokeStyle="rgba(255,255,255,0.3)"
+ctx.beginPath()
+ctx.arc(mouseX,mouseY,stats.range,0,Math.PI*2)
+ctx.stroke()
+
 }
-
-function updateUI(){
-
-document.getElementById("money").innerText = money
-document.getElementById("health").innerText = health
 
 }
 
@@ -251,7 +275,9 @@ function loop(){
 
 update()
 draw()
-updateUI()
+
+document.getElementById("money").innerText=money
+document.getElementById("health").innerText=health
 
 requestAnimationFrame(loop)
 
