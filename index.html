@@ -8,62 +8,43 @@
 
 <body>
 
-<div id="menu">
-
 <h1>Hart Baits Tower Defense</h1>
 
-<label>Player Name</label>
-<input id="playerName" placeholder="Enter name">
+<div id="stats">
+Money: $<span id="money">300</span>
+Health: <span id="health">20</span>
+Wave: <span id="wave">1</span>
+</div>
 
-<h3>Select Difficulty</h3>
+<div id="shop">
 
-<select id="difficulty">
-<option value="easy">Easy</option>
-<option value="medium">Medium</option>
-<option value="hard">Hard</option>
-<option value="insane">Insane</option>
-</select>
+<button onclick="selectTower('rod')">
+Rod Turret ($100)
+</button>
 
-<h3>Select Map</h3>
+<button onclick="selectTower('rapid')">
+Rapid Reel ($150)
+</button>
 
-<select id="mapSelect">
-<option value="river">River Bend</option>
-<option value="swamp">Swamp Channel</option>
-<option value="frozen">Frozen Lake</option>
-<option value="ocean">Ocean Dock</option>
-<option value="desert">Desert Oasis</option>
-<option value="forest">Forest Creek</option>
-<option value="lava">Lava Basin</option>
-<option value="harbor">Harbor City</option>
-</select>
+<button onclick="selectTower('farm')">
+Bait Farm ($200)
+</button>
 
-<button onclick="startGame()">Start Game</button>
+<button onclick="selectTower('support')">
+Discount Tower ($180)
+</button>
 
-<h3>Leaderboard</h3>
-<div id="leaderboard"></div>
+<button onclick="startNextWave()">
+Next Wave
+</button>
 
 </div>
 
-<div id="gameUI" style="display:none">
+<canvas id="game" width="900" height="500"></canvas>
 
-<div id="topbar">
-
-Money $<span id="money"></span>
-Wave <span id="wave"></span>
-Airstrikes <span id="air"></span>
-
-<br>
-
-<button onclick="selectTower('rod')">Rod Turret</button>
-<button onclick="selectTower('rapid')">Rapid Reel</button>
-<button onclick="selectTower('farm')">Bait Farm</button>
-<button onclick="selectTower('support')">Discount Tower</button>
-<button onclick="activateAirstrike()">Airstrike</button>
-
-</div>
-
-<canvas id="game" width="900" height="600"></canvas>
-
+<div id="gameover" style="display:none;">
+<h2>Game Over</h2>
+<p>You reached wave <span id="finalWave"></span></p>
 </div>
 
 <script src="game.js"></script>
