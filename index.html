@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hart Baits Tower Defense</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="menu">
+
+<h1>Hart Baits Tower Defense</h1>
+
+<label>Player Name</label>
+<input id="playerName" placeholder="Enter name">
+
+<h3>Select Difficulty</h3>
+
+<select id="difficulty">
+<option value="easy">Easy</option>
+<option value="medium">Medium</option>
+<option value="hard">Hard</option>
+<option value="insane">Insane</option>
+</select>
+
+<h3>Select Map</h3>
+
+<select id="mapSelect">
+<option value="river">River Bend</option>
+<option value="swamp">Swamp Channel</option>
+<option value="frozen">Frozen Lake</option>
+<option value="ocean">Ocean Dock</option>
+<option value="desert">Desert Oasis</option>
+<option value="forest">Forest Creek</option>
+<option value="lava">Lava Basin</option>
+<option value="harbor">Harbor City</option>
+</select>
+
+<button onclick="startGame()">Start Game</button>
+
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
+
+</div>
+
+<div id="gameUI" style="display:none">
+
+<div id="topbar">
+
+Money $<span id="money"></span>
+Wave <span id="wave"></span>
+Airstrikes <span id="air"></span>
+
+<br>
+
+<button onclick="selectTower('rod')">Rod Turret</button>
+<button onclick="selectTower('rapid')">Rapid Reel</button>
+<button onclick="selectTower('farm')">Bait Farm</button>
+<button onclick="selectTower('support')">Discount Tower</button>
+<button onclick="activateAirstrike()">Airstrike</button>
+
+</div>
+
+<canvas id="game" width="900" height="600"></canvas>
+
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>
