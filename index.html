@@ -8,15 +8,40 @@
 
 <body>
 
-<h1>Hart Baits Tower Defense</h1>
+<div id="container">
 
-<div id="stats">
-Money: $<span id="money">300</span>
-Health: <span id="health">20</span>
-Wave: <span id="wave">1</span>
+<div id="leftPanel">
+
+<h2>Tower Upgrades</h2>
+
+<div id="towerInfo">
+Click a tower
 </div>
 
-<div id="shop">
+<button id="upgradeBtn">Upgrade</button>
+<button id="sellBtn">Sell</button>
+
+</div>
+
+
+<div id="gameArea">
+
+<canvas id="game" width="900" height="500"></canvas>
+
+</div>
+
+
+<div id="rightPanel">
+
+<h2>Game Stats</h2>
+
+<p>Money: $<span id="money">300</span></p>
+<p>Health: <span id="health">20</span></p>
+<p>Wave: <span id="wave">1</span></p>
+
+<button onclick="nextWave()">Next Wave</button>
+
+<h3>Towers</h3>
 
 <button onclick="selectTower('rod')">
 Rod Turret ($100)
@@ -34,17 +59,8 @@ Bait Farm ($200)
 Discount Tower ($180)
 </button>
 
-<button onclick="startNextWave()">
-Next Wave
-</button>
-
 </div>
 
-<canvas id="game" width="900" height="500"></canvas>
-
-<div id="gameover" style="display:none;">
-<h2>Game Over</h2>
-<p>You reached wave <span id="finalWave"></span></p>
 </div>
 
 <script src="game.js"></script>
