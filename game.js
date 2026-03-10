@@ -1,80 +1,142 @@
-const canvas = document.getElementById("game")
-const ctx = canvas.getContext("2d")
+const canvas=document.getElementById("game")
+const ctx=canvas.getContext("2d")
 
-let grid=40
-let cols=22
-let rows=12
+const grid=40
+const cols=22
+const rows=12
 
 let money=300
 let health=20
 let wave=1
 
+let selectedTowerType=null
+let selectedTower=null
+
 let towers=[]
 let enemies=[]
 let bullets=[]
 
-let selectedTower=null
-let waveActive=false
-
 const towerStats={
 rod:{cost:100,range:3,rate:40,damage:10},
 rapid:{cost:150,range:3,rate:15,damage:6},
-farm:{cost:200},
-support:{cost:180}
+farm:{cost:200,range:0,rate:0,damage:0},
+support:{cost:180,range:4,rate:0,damage:0}
 }
 
-const maps={
-river:[
-{x:0,y:5},{x:5,y:5},{x:5,y:9},{x:14,y:9},{x:14,y:3},{x:21,y:3}
-],
-
-swamp:[
-{x:0,y:8},{x:6,y:8},{x:6,y:2},{x:14,y:2},{x:14,y:9},{x:21,y:9}
+const path=[
+{x:0,y:5},
+{x:5,y:5},
+{x:5,y:9},
+{x:14,y:9},
+{x:14,y:3},
+{x:21,y:3}
 ]
-}
-
-let path=maps.river
 
 canvas.addEventListener("click",e=>{
-
-if(!selectedTower) return
 
 const rect=canvas.getBoundingClientRect()
 
 let x=Math.floor((e.clientX-rect.left)/grid)
 let y=Math.floor((e.clientY-rect.top)/grid)
 
-let cost=towerStats[selectedTower].cost
+if(selectedTowerType){
 
-if(money<cost) return
+let stats=towerStats[selectedTowerType]
 
-towers.push({
+if(money<stats.cost)return
+
+let tower={
 x,y,
-type:selectedTower,
-cool:0,
-tier:0
-})
+type:selectedTowerType,
+tier:1,
+cool:0
+}
 
-money-=cost
+towers.push(tower)
+
+money-=stats.cost
 updateUI()
+
+return
+}
+
+for(let t of towers){
+
+if(t.x==x && t.y==y){
+
+selectedTower=t
+showTowerInfo()
+return
+
+}
+
+}
 
 })
 
 function selectTower(type){
-selectedTower=type
+
+selectedTowerType=type
+selectedTower=null
+
 }
 
-function startNextWave(){
+function showTowerInfo(){
 
-if(waveActive) return
+let info=document.getElementById("towerInfo")
 
-waveActive=true
+if(!selectedTower){
+
+info.innerHTML="Click a tower"
+return
+}
+
+info.innerHTML=`
+Type: ${selectedTower.type}<br>
+Tier: ${selectedTower.tier}
+`
+
+}
+
+document.getElementById("upgradeBtn").onclick=()=>{
+
+if(!selectedTower)return
+
+let cost=50*selectedTower.tier
+
+if(money<cost)return
+
+money-=cost
+
+selectedTower.tier++
+
+showTowerInfo()
+
+updateUI()
+
+}
+
+document.getElementById("sellBtn").onclick=()=>{
+
+if(!selectedTower)return
+
+money+=50
+
+towers=towers.filter(t=>t!=selectedTower)
+
+selectedTower=null
+
+showTowerInfo()
+
+updateUI()
+
+}
+
+function nextWave(){
 
 for(let i=0;i<wave*3;i++){
 
-setTimeout(()=>{
-spawnEnemy()
-},i*500)
+setTimeout(()=>spawnEnemy(),i*500)
 
 }
 
@@ -99,9 +161,11 @@ for(let e of enemies){
 let target=path[e.step+1]
 
 if(!target){
+
 health--
 e.dead=true
 continue
+
 }
 
 let dx=target.x-e.x
@@ -120,9 +184,11 @@ for(let t of towers){
 
 t.cool--
 
-if(t.cool>0) continue
+if(t.cool>0)continue
 
-if(!towerStats[t.type].range) continue
+let stats=towerStats[t.type]
+
+if(!stats.range)continue
 
 for(let e of enemies){
 
@@ -131,16 +197,16 @@ let dy=e.y-t.y
 
 let dist=Math.sqrt(dx*dx+dy*dy)
 
-if(dist<towerStats[t.type].range){
+if(dist<stats.range){
 
 bullets.push({
 x:t.x,
 y:t.y,
 target:e,
-dmg:towerStats[t.type].damage
+dmg:stats.damage*t.tier
 })
 
-t.cool=towerStats[t.type].rate
+t.cool=stats.rate
 break
 
 }
@@ -183,18 +249,19 @@ return !e.dead
 
 })
 
-if(enemies.length==0 && waveActive){
+if(enemies.length==0){
 
 wave++
 money+=50+wave
-waveActive=false
 
 updateUI()
 
 }
 
 if(health<=0){
-gameOver()
+
+alert("Game Over")
+
 }
 
 }
@@ -225,7 +292,7 @@ let p=path[i]
 let px=p.x*grid+grid/2
 let py=p.y*grid+grid/2
 
-if(i==0) ctx.moveTo(px,py)
+if(i==0)ctx.moveTo(px,py)
 else ctx.lineTo(px,py)
 
 }
@@ -273,27 +340,13 @@ document.getElementById("wave").innerText=wave
 
 }
 
-function gameOver(){
-
-document.getElementById("gameover").style.display="block"
-
-document.getElementById("finalWave").innerText=wave
-
-let best=localStorage.getItem("bestWave")
-
-if(!best || wave>best){
-localStorage.setItem("bestWave",wave)
-}
-
-}
-
-function gameLoop(){
+function loop(){
 
 update()
 draw()
 
-requestAnimationFrame(gameLoop)
+requestAnimationFrame(loop)
 
 }
 
-gameLoop()
+loop()
