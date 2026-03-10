@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Hart Baits Tower Defense</title>
+<title>Hart Baits TD</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -11,31 +11,42 @@
 <div id="container">
 
 <div id="leftPanel">
-<h2>Upgrades</h2>
-<div id="towerInfo">Click a tower</div>
-<button id="upgradeBtn">Upgrade</button>
-<button id="sellBtn">Sell</button>
+
+<h2>Tower</h2>
+
+<div id="towerInfo">
+Select a tower
 </div>
 
-<div id="gameArea">
-<canvas id="game" width="900" height="500"></canvas>
+<button id="upgradeBtn">Upgrade</button>
+<button id="sellBtn">Sell</button>
+
 </div>
+
+
+<div id="gameArea">
+<canvas id="game" width="900" height="550"></canvas>
+</div>
+
 
 <div id="rightPanel">
 
 <h2>Status</h2>
 
 Money: $<span id="money">300</span><br>
-Health: <span id="health">20</span><br>
+Health: <span id="health">100</span><br>
 Wave: <span id="wave">1</span>
 
 <button onclick="startWave()">Start Wave</button>
+<button onclick="toggleSpeed()">2x Speed</button>
 
 <h3>Towers</h3>
 
-<button onclick="selectTower('rod')">Rod Tower</button>
-<button onclick="selectTower('rapid')">Rapid Tower</button>
-<button onclick="selectTower('farm')">Money Farm</button>
+<button onclick="selectTower('rod')">Rod Tower ($100)</button>
+<button onclick="selectTower('rapid')">Rapid Tower ($150)</button>
+<button onclick="selectTower('sniper')">Sniper Tower ($220)</button>
+<button onclick="selectTower('freeze')">Freeze Tower ($180)</button>
+<button onclick="selectTower('farm')">Money Farm ($200)</button>
 
 </div>
 
