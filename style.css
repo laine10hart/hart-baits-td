@@ -2,19 +2,40 @@ body{
 background:#1b1b1b;
 color:white;
 font-family:Arial;
-text-align:center;
+margin:0;
 }
 
-#stats{
-margin:10px;
+#container{
+display:flex;
+height:100vh;
 }
 
-#shop button{
-margin:4px;
-padding:8px;
+#leftPanel{
+width:200px;
+background:#2a2a2a;
+padding:10px;
+}
+
+#rightPanel{
+width:220px;
+background:#2a2a2a;
+padding:10px;
+}
+
+#gameArea{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
 canvas{
 background:#2f3b2f;
 border:3px solid #444;
+}
+
+button{
+width:100%;
+margin:5px 0;
+padding:6px;
 }
