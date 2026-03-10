@@ -3,54 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <title>Hart Baits TD</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+margin:0;
+background:#2c4f4f;
+font-family:Arial;
+color:white;
+}
+
+#ui{
+position:absolute;
+right:0;
+top:0;
+width:220px;
+height:100%;
+background:#233;
+padding:10px;
+}
+
+button{
+width:100%;
+margin:4px 0;
+padding:6px;
+}
+
+canvas{
+background:#4fa96c;
+}
+
+</style>
 </head>
 
 <body>
 
-<div id="container">
+<canvas id="game" width="1000" height="600"></canvas>
 
-<div id="leftPanel">
+<div id="ui">
 
-<h2>Tower Info</h2>
-
-<div id="towerInfo">
-Select a tower
-</div>
-
-<button id="upgradeBtn">Upgrade</button>
-<button id="sellBtn">Sell</button>
-
-</div>
-
-
-<div id="gameArea">
-
-<canvas id="game" width="900" height="550"></canvas>
-
-</div>
-
-
-<div id="rightPanel">
-
-<h2>Status</h2>
+<h3>Status</h3>
 
 Money: $<span id="money">300</span><br>
-Health: <span id="health">100</span><br>
-Wave: <span id="wave">1</span>
+Health: <span id="health">100</span>
 
 <button onclick="startWave()">Start Wave</button>
 <button onclick="toggleSpeed()">2x Speed</button>
 
 <h3>Towers</h3>
 
-<button onclick="selectTower('basic')">Basic ($100)</button>
-<button onclick="selectTower('rapid')">Rapid ($150)</button>
-<button onclick="selectTower('sniper')">Sniper ($220)</button>
-<button onclick="selectTower('freeze')">Freeze ($180)</button>
-<button onclick="selectTower('farm')">Farm ($200)</button>
-
-</div>
+<button onclick="selectTower(0)">Basic</button>
+<button onclick="selectTower(1)">Rapid</button>
+<button onclick="selectTower(2)">Sniper</button>
+<button onclick="selectTower(3)">Freeze</button>
+<button onclick="selectTower(4)">Cannon</button>
+<button onclick="selectTower(5)">Splash</button>
+<button onclick="selectTower(6)">Laser</button>
+<button onclick="selectTower(7)">Poison</button>
+<button onclick="selectTower(8)">Farm</button>
+<button onclick="selectTower(9)">Support</button>
 
 </div>
 
